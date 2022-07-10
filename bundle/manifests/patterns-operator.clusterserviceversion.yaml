@@ -20,7 +20,7 @@ metadata:
       ]
     capabilities: Basic Install
     categories: OpenShift Optional
-    containerImage: quay.io/hybridcloudpatterns/patterns-operator:0.0.4
+    containerImage: quay.io/jrickard0/patterns-operator:0.0.4
     description: An operator to deploy and manage architecture patterns from https://hybrid-cloud-patterns.io
     operatorframework.io/suggested-namespace: patterns-operator-system
     operators.operatorframework.io/builder: operator-sdk-v1.21.0
@@ -241,7 +241,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: quay.io/hybridcloudpatterns/patterns-operator:0.0.4
+                image: quay.io/jrickard0/patterns-operator:0.0.4
                 imagePullPolicy: Always
                 livenessProbe:
                   httpGet:

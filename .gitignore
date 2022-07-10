@@ -5,6 +5,7 @@
 *.dll
 *.so
 *.dylib
+*.vscode
 bin
 testbin/*
 

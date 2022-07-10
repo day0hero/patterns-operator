@@ -147,6 +147,8 @@ type PatternStatus struct {
 	ClusterID string `json:"clusterID,omitempty"`
 	//+operator-sdk:csv:customresourcedefinitions:type=status
 	ClusterPlatform string `json:"clusterPlatform,omitempty"`
+	//+operator-sdk:csv:customresourcedefinitions:type=status
+	jrockString string `json:"jrockString,omitempty"`
 }
 
 // See: https://book.kubebuilder.io/reference/markers/crd.html
@@ -163,8 +165,9 @@ type Pattern struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   PatternSpec   `json:"spec,omitempty"`
-	Status PatternStatus `json:"status,omitempty"`
+	Spec       PatternSpec        `json:"spec,omitempty"`
+	Status     PatternStatus      `json:"status,omitempty"`
+	Conditions []metav1.Condition `json:"conditions"`
 }
 
 //+kubebuilder:object:root=true

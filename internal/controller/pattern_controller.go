@@ -522,7 +522,15 @@ func (r *PatternReconciler) finalizeObject(instance *api.Pattern) error {
 		}
 		ns := getClusterWideArgoNamespace()
 
-		targetApp := newArgoApplication(qualifiedInstance, nil)
+		// Fetch infrastructure for cluster API server URL and control plane topology
+		infra := &configv1.Infrastructure{}
+		if err := r.Get(context.TODO(), types.NamespacedName{Name: "cluster"}, infra); err != nil {
+			// If infrastructure cannot be fetched, continue with nil (handled in newApplicationParameters)
+			log.Printf("Warning: Could not fetch infrastructure object during finalization: %v. Parameters global.clusterAPIServerURL and global.controlPlaneTopology will not be set.", err)
+			infra = nil
+		}
+
+		targetApp := newArgoApplication(qualifiedInstance, infra)
 		_ = controllerutil.SetOwnerReference(qualifiedInstance, targetApp, r.Scheme)
 
 		app, _ := getApplication(r.argoClient, applicationName(qualifiedInstance), ns)

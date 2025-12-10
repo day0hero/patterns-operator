@@ -9,6 +9,7 @@ GOFLAGS=-mod=vendor
 GOLANGCI_VERSION ?= 2.6.2
 REGISTRY ?= localhost
 UPLOADREGISTRY ?= quay.io/validatedpatterns
+GOLANGCI_IMG ?= docker.io/golangci/golangci-lint
 
 # CI uses a non-writable home dir, make sure .cache is writable
 ifeq ("${HOME}", "/")
@@ -178,7 +179,7 @@ buildah-push: ## Uploads the container to quay.io/validatedpatterns/${OPERATOR_I
 
 .PHONY: golangci-lint
 golangci-lint: apikey ## Run golangci-lint locally
-	podman run --pull=newer --rm -v $(PWD):/app:rw,z -w /app golangci/golangci-lint:v$(GOLANGCI_VERSION) golangci-lint run -v
+	podman run --pull=newer --rm -v $(PWD):/app:rw,z -w /app $(GOLANGCI_IMG):v$(GOLANGCI_VERSION) golangci-lint run -v
 
 ##@ Legacy docker tasks
 .PHONY: docker-build
@@ -299,11 +300,11 @@ bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metada
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
-	docker build --platform $(CONTAINER_OS)/$(CONTAINER_PLATFORM) -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+	podman build --platform $(CONTAINER_OS)/$(CONTAINER_PLATFORM) -f bundle.Dockerfile -t $(BUNDLE_IMG) .
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
-	docker push $(BUNDLE_IMG)
+	podman push $(BUNDLE_IMG)
 
 .PHONY: csv-date
 csv-date: ## Set createdAt date in the CSV.
@@ -358,11 +359,11 @@ endif
 catalog-build: opm ## Build an OLM catalog image (for testing).
 	cat catalog/template.yaml | BUNDLE_IMG=$(BUNDLE_IMG) VERSION=$(VERSION) envsubst > catalog/_template.yaml
 	$(OPM) alpha render-template basic -o yaml < catalog/_template.yaml > catalog/catalog.yaml
-	cd catalog ; docker build --platform $(CONTAINER_OS)/$(CONTAINER_PLATFORM) -t $(CATALOG_IMG) .
+	cd catalog ; podman build --platform $(CONTAINER_OS)/$(CONTAINER_PLATFORM) -t $(CATALOG_IMG) .
 
 .PHONY: catalog-push
 catalog-push: ## Push the OLM catalog image (for testing).
-	docker push $(CATALOG_IMG)
+	podman push $(CATALOG_IMG)
 
 .PHONY: catalog-install
 catalog-install: config/samples/pattern-catalog-$(VERSION).yaml ## Install the OLM catalog on a cluster (for testing).

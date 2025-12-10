@@ -496,6 +496,14 @@ func (r *PatternReconciler) applyDefaults(input *api.Pattern) (*api.Pattern, err
 	return output, nil
 }
 
+func (r *PatternReconciler)  Reconcile(ctx context.Context, req ctrl.Request) (ctl.Result, error) {
+    infra := &configv1.Infrastructure{}
+    if err := r.Get(ctx, types.NamespacedName{Name: "cluster"}, infra) err != nil {
+        return ctrl.Result{}, err
+    }
+    helmParams := newApplicationParameters(p, infra)
+}
+
 func (r *PatternReconciler) finalizeObject(instance *api.Pattern) error {
 	// Add finalizer when object is created
 	log.Printf("Finalizing pattern object")

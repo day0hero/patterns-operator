@@ -33,6 +33,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+        configv1 "github.com/openshift/api/config/v1"
 
 	argooperator "github.com/argoproj-labs/argocd-operator/api/v1beta1"
 	argoapi "github.com/argoproj/argo-cd/v3/pkg/apis/application/v1alpha1"
@@ -347,7 +348,7 @@ func getArgoCD(client dynamic.Interface, name, namespace string) (*argooperator.
 	return argo, err
 }
 
-func newApplicationParameters(p *api.Pattern) []argoapi.HelmParameter {
+func newApplicationParameters(p *api.Pattern, infra *configv1.Infrastructure) []argoapi.HelmParameter {
 	parameters := []argoapi.HelmParameter{
 		{
 			Name:  "global.pattern",
@@ -411,6 +412,17 @@ func newApplicationParameters(p *api.Pattern) []argoapi.HelmParameter {
 			Value: p.Spec.ExperimentalCapabilities,
 		},
 	}
+        if infra != nill {
+          parameters = append(parameters, argoapi.HelmParameter{
+              Name: "global.clusterAPIServerURL",
+              Value: infra.Status.APIServerURL,
+            },
+            argoapi.HelmParameter{
+              Name: "global.controlPlaneTopology",
+              Value: string(infra.Status.ControlPlaneTopology),
+            },
+          )
+        }
 	parameters = append(parameters, argoapi.HelmParameter{
 		Name:  "global.multiSourceTargetRevision",
 		Value: getClusterGroupChartVersion(p),

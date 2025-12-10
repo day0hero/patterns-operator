@@ -413,6 +413,7 @@ func newApplicationParameters(p *api.Pattern, infra *configv1.Infrastructure) []
 		},
 	}
 	if infra != nil {
+		log.Printf("Adding infrastructure parameters: clusterAPIServerURL=%s, controlPlaneTopology=%s", infra.Status.APIServerURL, infra.Status.ControlPlaneTopology)
 		parameters = append(parameters, argoapi.HelmParameter{
 			Name:  "global.clusterAPIServerURL",
 			Value: infra.Status.APIServerURL,
@@ -422,6 +423,8 @@ func newApplicationParameters(p *api.Pattern, infra *configv1.Infrastructure) []
 				Value: string(infra.Status.ControlPlaneTopology),
 			},
 		)
+	} else {
+		log.Printf("Warning: infra is nil, skipping infrastructure parameters (global.clusterAPIServerURL and global.controlPlaneTopology)")
 	}
 	parameters = append(parameters, argoapi.HelmParameter{
 		Name:  "global.multiSourceTargetRevision",

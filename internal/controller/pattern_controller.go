@@ -229,7 +229,10 @@ func (r *PatternReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	infra := &configv1.Infrastructure{}
 	if err := r.Get(ctx, types.NamespacedName{Name: "cluster"}, infra); err != nil {
 		// If infrastructure cannot be fetched, continue with nil (handled in newApplicationParameters)
+		log.Printf("Warning: Could not fetch infrastructure object: %v. Parameters global.clusterAPIServerURL and global.controlPlaneTopology will not be set.", err)
 		infra = nil
+	} else {
+		log.Printf("Successfully fetched infrastructure: APIServerURL=%s, ControlPlaneTopology=%s", infra.Status.APIServerURL, infra.Status.ControlPlaneTopology)
 	}
 
 	targetApp := newArgoApplication(qualifiedInstance, infra)
